@@ -1,0 +1,15 @@
+[package]
+name = "bevy_megaui"
+version = "0.1.0"
+authors = ["mvlabat <mvlabat@gmail.com>"]
+edition = "2018"
+repository = "https://github.com/mvlabat/bevy_megaui"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = { version = "0.4", default-features = false, features = ["render"] }
+megaui = "0.2.14"
+
+[dev-dependencies]
+bevy = "0.4" # for compiling the examples with the default set of features
