@@ -1,5 +1,10 @@
 # `bevy_megaui`
 
+[![Crates.io](https://img.shields.io/crates/v/bevy_megaui.svg)](https://crates.io/crates/bevy_megaui)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bevyengine/bevy/blob/master/LICENSE)
+[![Crates.io](https://img.shields.io/crates/d/bevy_megaui.svg)](https://crates.io/crates/bevy_megaui)
+[![Rust](https://github.com/mvlabat/bevy_megaui/workflows/CI/badge.svg)](https://github.com/mvlabat/bevy_megaui/actions)
+
 This crate provides a [megaui](https://crates.io/crates/megaui) integration for the [Bevy](https://github.com/bevyengine/bevy) game engine.
 
 `bevy_megaui` depends solely on `megaui` and `bevy` with only `render` feature required.
@@ -9,6 +14,12 @@ This crate provides a [megaui](https://crates.io/crates/megaui) integration for 
 ## Usage
 
 Here's a minimal usage example:
+```toml
+# Cargo.toml
+[dependencies]
+bevy = "0.4"
+bevy_megaui = "0.1"
+```
 
 ```rust
 use bevy::prelude::*;
