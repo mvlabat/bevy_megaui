@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
 
-name: Check with rustfmt and clippy
+name: CI
 
 jobs:
   fmt:
