@@ -2,6 +2,8 @@
 name = "bevy_megaui"
 version = "0.1.0"
 authors = ["mvlabat <mvlabat@gmail.com>"]
+description = "Megaui integration for Bevy"
+license = "MIT"
 edition = "2018"
 repository = "https://github.com/mvlabat/bevy_megaui"
 exclude = ["assets/**/*", ".github/**/*"]
@@ -12,5 +14,7 @@ exclude = ["assets/**/*", ".github/**/*"]
 bevy = { version = "0.4", default-features = false, features = ["render"] }
 megaui = "0.2.14"
 
-[dev-dependencies]
-bevy = "0.4" # for compiling the examples with the default set of features
+[[example]]
+name = "ui"
+path = "examples/ui.rs"
+required-features = ["bevy/x11", "bevy/png", "bevy/bevy_wgpu"]

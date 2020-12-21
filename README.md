@@ -41,3 +41,7 @@ fn ui_example(_world: &mut World, resources: &mut Resources) {
 ```
 
 For a more advanced example, see [examples/ui.rs](examples/ui.rs).
+
+```bash
+cargo run --example ui --features="bevy/x11 bevy/png bevy/bevy_wgpu"
+```

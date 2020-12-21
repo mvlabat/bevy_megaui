@@ -48,13 +48,7 @@ jobs:
           restore-keys: |
             cache-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
             cache-${{ runner.os }}-cargo
-      - name: Install alsa
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev
-        if: ${{ runner.os == 'Linux' }}
-      - name: Install udev
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libudev-dev
-        if: ${{ runner.os == 'Linux' }}
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --examples -- -D warnings
+          args: --example ui --features=bevy/x11,bevy/png,bevy/bevy_wgpu -- -D warnings
