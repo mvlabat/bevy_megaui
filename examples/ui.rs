@@ -101,8 +101,8 @@ fn ui_example(_world: &mut World, resources: &mut Resources) {
 
                 ui.separator();
 
-                ui.input_field(hash!(), "<- input text 1", &mut ui_state.input1);
-                ui.input_field(hash!(), "<- input text 2", &mut ui_state.input2);
+                ui.input_text(hash!(), "<- input text 1", &mut ui_state.input1);
+                ui.input_text(hash!(), "<- input text 2", &mut ui_state.input2);
                 ui.label(
                     None,
                     &format!(
