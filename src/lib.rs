@@ -50,9 +50,7 @@ mod input;
 mod megaui_node;
 mod transform_node;
 
-use crate::input::process_input;
-use crate::megaui_node::MegaUiNode;
-use crate::transform_node::MegaUiTransformNode;
+use crate::{input::process_input, megaui_node::MegaUiNode, transform_node::MegaUiTransformNode};
 use bevy::{
     app::{stage, AppBuilder, EventReader, Plugin},
     asset::{Assets, Handle, HandleUntyped},
@@ -61,22 +59,19 @@ use bevy::{
     reflect::TypeUuid,
     render::{
         pipeline::{
-            BindGroupDescriptor, BlendDescriptor, BlendFactor, BlendOperation,
-            ColorStateDescriptor, ColorWrite, CompareFunction, CullMode,
-            DepthStencilStateDescriptor, FrontFace, IndexFormat, InputStepMode, PipelineCompiler,
-            PipelineDescriptor, PipelineLayout, PipelineSpecialization,
-            RasterizationStateDescriptor, StencilStateDescriptor, StencilStateFaceDescriptor,
-            VertexAttributeDescriptor, VertexBufferDescriptor, VertexFormat,
+            BlendDescriptor, BlendFactor, BlendOperation, ColorStateDescriptor, ColorWrite,
+            CompareFunction, CullMode, DepthStencilStateDescriptor, FrontFace, IndexFormat,
+            PipelineDescriptor, RasterizationStateDescriptor, StencilStateDescriptor,
+            StencilStateFaceDescriptor,
         },
         render_graph::{base, base::Msaa, RenderGraph, WindowSwapChainNode, WindowTextureNode},
-        renderer::RenderResourceContext,
         shader::{Shader, ShaderStage, ShaderStages},
         texture::{Extent3d, Texture, TextureDimension, TextureFormat},
     },
     window::{CursorMoved, ReceivedCharacter, WindowResized},
 };
 use megaui::Vector2;
-use std::{borrow::Cow, collections::HashMap};
+use std::collections::HashMap;
 
 /// A handle pointing to the megaui [PipelineDescriptor].
 pub const MEGAUI_PIPELINE_HANDLE: HandleUntyped =
@@ -172,13 +167,13 @@ impl MegaUiContext {
 /// Params that are used for defining a window with [MegaUiContext::draw_window].
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct WindowParams {
-    /// Window label.
+    /// Window label (empty by default).
     pub label: String,
-    /// Defines whether a window is movable.
+    /// Defines whether a window is movable (`true` by default).
     pub movable: bool,
-    /// Defines whether a window is closable.
+    /// Defines whether a window is closable (`false` by default).
     pub close_button: bool,
-    /// Defines whether a window has a titlebar.
+    /// Defines whether a window has a titlebar (`true` by default).
     pub titlebar: bool,
 }
 
@@ -193,7 +188,7 @@ impl Default for WindowParams {
     }
 }
 
-#[derive(Default, Clone, PartialEq)]
+#[derive(Debug, Default, Clone, PartialEq)]
 struct WindowSize {
     width: f32,
     height: f32,
@@ -252,71 +247,9 @@ impl Plugin for MegaUiPlugin {
             MEGAUI_PIPELINE_HANDLE,
             build_megaui_pipeline(&mut shaders, msaa.samples),
         );
-        let pipeline_descriptor_handle = {
-            let render_resource_context =
-                resources.get::<Box<dyn RenderResourceContext>>().unwrap();
-            let mut pipeline_compiler = resources.get_mut::<PipelineCompiler>().unwrap();
-
-            let attributes = vec![
-                VertexAttributeDescriptor {
-                    name: Cow::from("Vertex_Position"),
-                    offset: 0,
-                    format: VertexFormat::Float3,
-                    shader_location: 0,
-                },
-                VertexAttributeDescriptor {
-                    name: Cow::from("Vertex_Uv"),
-                    offset: VertexFormat::Float3.get_size(),
-                    format: VertexFormat::Float2,
-                    shader_location: 1,
-                },
-                VertexAttributeDescriptor {
-                    name: Cow::from("Vertex_Color"),
-                    offset: VertexFormat::Float3.get_size() + VertexFormat::Float2.get_size(),
-                    format: VertexFormat::Float4,
-                    shader_location: 2,
-                },
-            ];
-            pipeline_compiler.compile_pipeline(
-                render_resource_context.as_ref(),
-                &mut pipelines,
-                &mut shaders,
-                &MEGAUI_PIPELINE_HANDLE.typed(),
-                &PipelineSpecialization {
-                    vertex_buffer_descriptor: VertexBufferDescriptor {
-                        name: Cow::from("MegaUiVertex"),
-                        stride: attributes
-                            .iter()
-                            .fold(0, |acc, attribute| acc + attribute.format.get_size()),
-                        step_mode: InputStepMode::Vertex,
-                        attributes,
-                    },
-                    index_format: IndexFormat::Uint16,
-                    sample_count: msaa.samples,
-                    ..PipelineSpecialization::default()
-                },
-            )
-        };
-        let pipeline_descriptor = pipelines.get(pipeline_descriptor_handle.clone()).unwrap();
-        let layout = pipeline_descriptor.layout.as_ref().unwrap();
-        let transform_bind_group =
-            find_bind_group_by_binding_name(layout, MEGAUI_TRANSFORM_RESOURCE_BINDING_NAME)
-                .unwrap();
-        let texture_bind_group =
-            find_bind_group_by_binding_name(layout, MEGAUI_TEXTURE_RESOURCE_BINDING_NAME).unwrap();
-
         let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
 
-        render_graph.add_node(
-            node::MEGAUI_PASS,
-            MegaUiNode::new(
-                pipeline_descriptor_handle,
-                transform_bind_group,
-                texture_bind_group,
-                &msaa,
-                font_texture,
-            ),
-        );
+        render_graph.add_node(node::MEGAUI_PASS, MegaUiNode::new(&msaa, font_texture));
         render_graph
             .add_node_edge(base::node::MAIN_PASS, node::MEGAUI_PASS)
             .unwrap();
@@ -362,22 +295,6 @@ impl Plugin for MegaUiPlugin {
     }
 }
 
-fn find_bind_group_by_binding_name(
-    pipeline_layout: &PipelineLayout,
-    binding_name: &str,
-) -> Option<BindGroupDescriptor> {
-    pipeline_layout
-        .bind_groups
-        .iter()
-        .find(|bind_group| {
-            bind_group
-                .bindings
-                .iter()
-                .any(|binding| binding.name == binding_name)
-        })
-        .cloned()
-}
-
 fn build_megaui_pipeline(shaders: &mut Assets<Shader>, sample_count: u32) -> PipelineDescriptor {
     PipelineDescriptor {
         rasterization_state: Some(RasterizationStateDescriptor {
@@ -418,11 +335,19 @@ fn build_megaui_pipeline(shaders: &mut Assets<Shader>, sample_count: u32) -> Pip
         ..PipelineDescriptor::new(ShaderStages {
             vertex: shaders.add(Shader::from_glsl(
                 ShaderStage::Vertex,
-                include_str!("megaui.vert"),
+                if cfg!(target_arch = "wasm32") {
+                    include_str!("megaui.es.vert")
+                } else {
+                    include_str!("megaui.vert")
+                },
             )),
             fragment: Some(shaders.add(Shader::from_glsl(
                 ShaderStage::Fragment,
-                include_str!("megaui.frag"),
+                if cfg!(target_arch = "wasm32") {
+                    include_str!("megaui.es.frag")
+                } else {
+                    include_str!("megaui.frag")
+                },
             ))),
         })
     }
