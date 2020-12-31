@@ -27,7 +27,10 @@ use bevy::{
         texture::{Texture, TextureDescriptor},
     },
 };
-use std::{borrow::Cow, collections::HashMap};
+use std::{
+    borrow::Cow,
+    collections::{HashMap, HashSet},
+};
 
 pub struct MegaUiNode {
     pass_descriptor: PassDescriptor,
@@ -175,6 +178,7 @@ impl Node for MegaUiNode {
             &asset_events,
             &texture_assets,
         );
+        self.remove_unused_textures(render_context, &megaui_context);
         self.init_textures(render_context, &megaui_context, &texture_assets);
 
         megaui_context.render_draw_lists();
@@ -453,6 +457,29 @@ impl MegaUiNode {
         }
         for (texture_handle, texture) in changed_assets {
             self.update_texture(render_context, texture, texture_handle);
+        }
+    }
+
+    fn remove_unused_textures(
+        &mut self,
+        render_context: &mut dyn RenderContext,
+        megaui_context: &MegaUiContext,
+    ) {
+        let texture_handles = megaui_context
+            .megaui_textures
+            .values()
+            .collect::<HashSet<_>>();
+        let mut textures_to_remove = Vec::new();
+
+        for texture_handle in self.texture_resources.keys() {
+            if !texture_handles.contains(texture_handle)
+                && megaui_context.font_texture != *texture_handle
+            {
+                textures_to_remove.push(texture_handle.clone_weak());
+            }
+        }
+        for texture_to_remove in textures_to_remove {
+            self.remove_texture(render_context, &texture_to_remove);
         }
     }
 
