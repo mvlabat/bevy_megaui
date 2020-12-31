@@ -11,6 +11,12 @@ This crate provides a [megaui](https://crates.io/crates/megaui) integration for 
 
 ![bevy_megaui](bevy_megaui.png)
 
+## Trying out
+
+An example WASM project is live at [mvlabat.github.io/bevy_megaui_web_showcase](https://mvlabat.github.io/bevy_megaui_web_showcase/index.html) [[source](https://github.com/mvlabat/bevy_megaui_web_showcase)].
+
+**Note** that in order to use `bevy_megaui`in WASM you need [bevy_webgl2](https://github.com/mrk-its/bevy_webgl2) of at least `0.4.1` version.
+
 ## Usage
 
 Here's a minimal usage example:
