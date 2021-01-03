@@ -9,6 +9,7 @@ const BEVY_TEXTURE_ID: u32 = 0;
 fn main() {
     App::build()
         .add_resource(ClearColor(Color::rgb(1.0, 1.0, 1.0)))
+        .add_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(MegaUiPlugin)
         .add_startup_system(load_assets.system())

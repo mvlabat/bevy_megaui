@@ -339,6 +339,7 @@ impl MegaUiNode {
 
         let mut pipelines = resources.get_mut::<Assets<PipelineDescriptor>>().unwrap();
         let mut shaders = resources.get_mut::<Assets<Shader>>().unwrap();
+        let msaa = resources.get::<Msaa>().unwrap();
 
         let pipeline_descriptor_handle = {
             let render_resource_context = render_context.resources();
@@ -379,6 +380,7 @@ impl MegaUiNode {
                         attributes,
                     },
                     index_format: IndexFormat::Uint16,
+                    sample_count: msaa.samples,
                     ..PipelineSpecialization::default()
                 },
             )
