@@ -4,6 +4,12 @@
 //!
 //! `bevy_megaui` depends solely on `megaui` and `bevy` with only `render` feature required.
 //!
+//! ## Trying out
+//!
+//! An example WASM project is live at [mvlabat.github.io/bevy_megaui_web_showcase](https://mvlabat.github.io/bevy_megaui_web_showcase/index.html) [[source](https://github.com/mvlabat/bevy_megaui_web_showcase)].
+//!
+//! **Note** that in order to use `bevy_megaui`in WASM you need [bevy_webgl2](https://github.com/mrk-its/bevy_webgl2) of at least `0.4.1` version.
+//!
 //! ## Usage
 //!
 //! Here's a minimal usage example:
@@ -83,6 +89,31 @@ pub const MEGAUI_TEXTURE_RESOURCE_BINDING_NAME: &str = "MegaUiTexture_texture";
 
 /// Adds all megaui resources and render graph nodes.
 pub struct MegaUiPlugin;
+
+/// A resource containing global UI settings.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MegaUiSettings {
+    /// Global scale factor for megaui widgets (`1.0` by default).
+    ///
+    /// This setting can be used to force the UI to render in physical pixels regardless of DPI as follows:
+    /// ```rust
+    /// use bevy::prelude::*;
+    /// use bevy_megaui::MegaUiSettings;
+    ///
+    /// fn update_ui_scale_factor(mut megaui_settings: ResMut<MegaUiSettings>, windows: Res<Windows>) {
+    ///     if let Some(window) = windows.get_primary() {
+    ///         megaui_settings.scale_factor = 1.0 / window.scale_factor();
+    ///     }
+    /// }
+    /// ```
+    pub scale_factor: f64,
+}
+
+impl Default for MegaUiSettings {
+    fn default() -> Self {
+        Self { scale_factor: 1.0 }
+    }
+}
 
 /// A resource that is used to store `bevy_megaui` context.
 /// Since [megaui::Ui] doesn't implement [Send] + [Sync], it's accessible only from
@@ -190,18 +221,28 @@ impl Default for WindowParams {
 
 #[derive(Debug, Default, Clone, PartialEq)]
 struct WindowSize {
-    width: f32,
-    height: f32,
+    physical_width: f32,
+    physical_height: f32,
     scale_factor: f32,
 }
 
 impl WindowSize {
-    fn new(width: f32, height: f32, scale_factor: f32) -> Self {
+    fn new(physical_width: f32, physical_height: f32, scale_factor: f32) -> Self {
         Self {
-            width,
-            height,
+            physical_width,
+            physical_height,
             scale_factor,
         }
+    }
+
+    #[inline]
+    fn width(&self) -> f32 {
+        self.physical_width / self.scale_factor
+    }
+
+    #[inline]
+    fn height(&self) -> f32 {
+        self.physical_height / self.scale_factor
     }
 }
 
@@ -236,6 +277,7 @@ impl Plugin for MegaUiPlugin {
                 TextureFormat::Rgba8Unorm,
             ))
         };
+        resources.get_or_insert_with(MegaUiSettings::default);
         resources.insert(WindowSize::new(0.0, 0.0, 0.0));
         resources.insert_thread_local(MegaUiContext::new(ui, font_texture.clone()));
 

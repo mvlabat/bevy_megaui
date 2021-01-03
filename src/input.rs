@@ -1,4 +1,4 @@
-use crate::{MegaUiContext, WindowSize};
+use crate::{MegaUiContext, MegaUiSettings, WindowSize};
 use bevy::{
     app::Events,
     ecs::{Resources, World},
@@ -18,12 +18,13 @@ pub fn process_input(_world: &mut World, resources: &mut Resources) {
     let keyboard_input = resources.get::<Input<KeyCode>>().unwrap();
     let mut window_size = resources.get_mut::<WindowSize>().unwrap();
     let windows = resources.get::<Windows>().unwrap();
+    let megaui_settings = resources.get::<MegaUiSettings>().unwrap();
 
     if *window_size == WindowSize::new(0.0, 0.0, 0.0) {
         let window = windows.get_primary().unwrap();
         *window_size = WindowSize::new(
-            window.width(),
-            window.height(),
+            window.physical_width() as f32,
+            window.physical_height() as f32,
             window.scale_factor() as f32,
         );
     }
@@ -32,14 +33,15 @@ pub fn process_input(_world: &mut World, resources: &mut Resources) {
             .get_primary()
             .map_or(false, |window| window.id() == resize_event.id);
         if is_primary {
-            window_size.width = resize_event.width;
-            window_size.height = resize_event.height;
+            window_size.physical_width = resize_event.width;
+            window_size.physical_height = resize_event.height;
         }
     }
 
     if let Some(cursor_moved) = ctx.cursor.latest(&ev_cursor) {
-        let mut mouse_position: (f32, f32) = cursor_moved.position.into();
-        mouse_position.1 = window_size.height - mouse_position.1;
+        let scale_factor = megaui_settings.scale_factor as f32;
+        let mut mouse_position: (f32, f32) = (cursor_moved.position / scale_factor).into();
+        mouse_position.1 = window_size.height() / scale_factor - mouse_position.1;
         ctx.mouse_position = mouse_position;
         ctx.ui.mouse_move(mouse_position);
     }

@@ -1,6 +1,6 @@
 use crate::{
-    MegaUiContext, WindowSize, MEGAUI_PIPELINE_HANDLE, MEGAUI_TEXTURE_RESOURCE_BINDING_NAME,
-    MEGAUI_TRANSFORM_RESOURCE_BINDING_NAME,
+    MegaUiContext, MegaUiSettings, WindowSize, MEGAUI_PIPELINE_HANDLE,
+    MEGAUI_TEXTURE_RESOURCE_BINDING_NAME, MEGAUI_TRANSFORM_RESOURCE_BINDING_NAME,
 };
 use bevy::{
     app::{EventReader, Events},
@@ -162,6 +162,7 @@ impl Node for MegaUiNode {
         self.init_pipeline(render_context, resources);
 
         let window_size = resources.get::<WindowSize>().unwrap();
+        let megaui_settings = resources.get::<MegaUiSettings>().unwrap();
 
         let render_resource_bindings = resources.get::<RenderResourceBindings>().unwrap();
 
@@ -266,19 +267,21 @@ impl Node for MegaUiNode {
                         None,
                     );
 
+                    let scale_factor =
+                        window_size.scale_factor * megaui_settings.scale_factor as f32;
                     if let Some(clipping_zone) = draw_command.clipping_zone {
                         render_pass.set_scissor_rect(
-                            (clipping_zone.x * window_size.scale_factor) as u32,
-                            (clipping_zone.y * window_size.scale_factor) as u32,
-                            (clipping_zone.w * window_size.scale_factor) as u32,
-                            (clipping_zone.h * window_size.scale_factor) as u32,
+                            (clipping_zone.x * scale_factor) as u32,
+                            (clipping_zone.y * scale_factor) as u32,
+                            (clipping_zone.w * scale_factor) as u32,
+                            (clipping_zone.h * scale_factor) as u32,
                         );
                     } else {
                         render_pass.set_scissor_rect(
                             0,
                             0,
-                            (window_size.width * window_size.scale_factor) as u32,
-                            (window_size.height * window_size.scale_factor) as u32,
+                            window_size.physical_width as u32,
+                            window_size.physical_height as u32,
                         );
                     }
                     render_pass.draw_indexed(
