@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_megaui::{
     megaui::{hash, Vector2},
-    MegaUiContext, MegaUiPlugin, WindowParams,
+    MegaUiContext, MegaUiPlugin, MegaUiSettings, WindowParams,
 };
 
 const BEVY_TEXTURE_ID: u32 = 0;
@@ -9,9 +9,11 @@ const BEVY_TEXTURE_ID: u32 = 0;
 fn main() {
     App::build()
         .add_resource(ClearColor(Color::rgb(1.0, 1.0, 1.0)))
+        .add_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .add_plugin(MegaUiPlugin)
         .add_startup_system(load_assets.system())
+        .add_system(update_ui_scale_factor.system())
         .add_system(ui_example.system())
         .run();
 }
@@ -33,6 +35,12 @@ fn load_assets(_world: &mut World, resources: &mut Resources) {
 
     let texture_handle = asset_server.load("icon.png");
     megaui_context.set_megaui_texture(BEVY_TEXTURE_ID, texture_handle);
+}
+
+fn update_ui_scale_factor(mut megaui_settings: ResMut<MegaUiSettings>, windows: Res<Windows>) {
+    if let Some(window) = windows.get_primary() {
+        megaui_settings.scale_factor = 1.0 / window.scale_factor();
+    }
 }
 
 fn ui_example(_world: &mut World, resources: &mut Resources) {

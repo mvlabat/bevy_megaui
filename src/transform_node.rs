@@ -1,4 +1,4 @@
-use crate::{WindowSize, MEGAUI_TRANSFORM_RESOURCE_BINDING_NAME};
+use crate::{MegaUiSettings, WindowSize, MEGAUI_TRANSFORM_RESOURCE_BINDING_NAME};
 use bevy::{
     core::AsBytes,
     ecs::{Commands, IntoSystem, Local, Res, ResMut, Resources, System, World},
@@ -47,6 +47,7 @@ impl SystemNode for MegaUiTransformNode {
                 transform_buffer: None,
                 staging_buffer: None,
                 prev_window_size: WindowSize::new(0.0, 0.0, 0.0),
+                prev_scale_factor: 0.0,
             },
         );
         Box::new(system)
@@ -59,18 +60,24 @@ pub struct TransformNodeState {
     transform_buffer: Option<BufferId>,
     staging_buffer: Option<BufferId>,
     prev_window_size: WindowSize,
+    prev_scale_factor: f64,
 }
 
 fn transform_node_system(
     mut state: Local<TransformNodeState>,
     render_resource_context: Res<Box<dyn RenderResourceContext>>,
     window_size: Res<WindowSize>,
+    megaui_settings: Res<MegaUiSettings>,
     mut render_resource_bindings: ResMut<RenderResourceBindings>,
 ) {
-    if state.prev_window_size == *window_size {
+    #[allow(clippy::float_cmp)]
+    if state.prev_window_size == *window_size
+        && state.prev_scale_factor == megaui_settings.scale_factor
+    {
         return;
     }
     state.prev_window_size = window_size.clone();
+    state.prev_scale_factor = megaui_settings.scale_factor;
 
     let render_resource_context = &**render_resource_context;
     let transform_data_size = std::mem::size_of::<[[f32; 2]; 2]>();
@@ -105,8 +112,8 @@ fn transform_node_system(
     };
 
     let transform_data: [f32; 4] = [
-        2.0 / window_size.width,
-        -2.0 / window_size.height, // scale
+        2.0 / (window_size.width() / megaui_settings.scale_factor as f32),
+        -2.0 / (window_size.height() / megaui_settings.scale_factor as f32), // scale
         -1.0,
         1.0, // translation
     ];
