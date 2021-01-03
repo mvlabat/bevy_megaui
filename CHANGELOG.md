@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.1.3 (2021-01-03)
+
+### Fixed
+
+* Updating UI transform uniform on resizing a primary window
+
 ## Version 0.1.2 (2021-01-03)
 
 ### Added 

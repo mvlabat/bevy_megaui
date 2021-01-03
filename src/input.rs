@@ -3,7 +3,7 @@ use bevy::{
     app::Events,
     ecs::{Resources, World},
     input::{keyboard::KeyCode, mouse::MouseButton, Input},
-    window::{CursorMoved, ReceivedCharacter, WindowResized, Windows},
+    window::{CursorMoved, ReceivedCharacter, Windows},
 };
 
 // Is a thread local system, because `megaui::Ui` (`MegaUiContext`) doesn't implement Send + Sync.
@@ -13,37 +13,28 @@ pub fn process_input(_world: &mut World, resources: &mut Resources) {
     let mut ctx = resources.get_thread_local_mut::<MegaUiContext>().unwrap();
     let ev_cursor = resources.get::<Events<CursorMoved>>().unwrap();
     let ev_received_character = resources.get::<Events<ReceivedCharacter>>().unwrap();
-    let ev_resize = resources.get::<Events<WindowResized>>().unwrap();
     let mouse_button_input = resources.get::<Input<MouseButton>>().unwrap();
     let keyboard_input = resources.get::<Input<KeyCode>>().unwrap();
     let mut window_size = resources.get_mut::<WindowSize>().unwrap();
     let windows = resources.get::<Windows>().unwrap();
     let megaui_settings = resources.get::<MegaUiSettings>().unwrap();
 
-    if *window_size == WindowSize::new(0.0, 0.0, 0.0) {
-        let window = windows.get_primary().unwrap();
+    if let Some(window) = windows.get_primary() {
         *window_size = WindowSize::new(
             window.physical_width() as f32,
             window.physical_height() as f32,
             window.scale_factor() as f32,
         );
     }
-    if let Some(resize_event) = ctx.resize.latest(&ev_resize) {
-        let is_primary = windows
-            .get_primary()
-            .map_or(false, |window| window.id() == resize_event.id);
-        if is_primary {
-            window_size.physical_width = resize_event.width;
-            window_size.physical_height = resize_event.height;
-        }
-    }
 
     if let Some(cursor_moved) = ctx.cursor.latest(&ev_cursor) {
-        let scale_factor = megaui_settings.scale_factor as f32;
-        let mut mouse_position: (f32, f32) = (cursor_moved.position / scale_factor).into();
-        mouse_position.1 = window_size.height() / scale_factor - mouse_position.1;
-        ctx.mouse_position = mouse_position;
-        ctx.ui.mouse_move(mouse_position);
+        if cursor_moved.id.is_primary() {
+            let scale_factor = megaui_settings.scale_factor as f32;
+            let mut mouse_position: (f32, f32) = (cursor_moved.position / scale_factor).into();
+            mouse_position.1 = window_size.height() / scale_factor - mouse_position.1;
+            ctx.mouse_position = mouse_position;
+            ctx.ui.mouse_move(mouse_position);
+        }
     }
 
     let mouse_position = ctx.mouse_position;

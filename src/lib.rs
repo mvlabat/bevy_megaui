@@ -74,7 +74,7 @@ use bevy::{
         shader::{Shader, ShaderStage, ShaderStages},
         texture::{Extent3d, Texture, TextureDimension, TextureFormat},
     },
-    window::{CursorMoved, ReceivedCharacter, WindowResized},
+    window::{CursorMoved, ReceivedCharacter},
 };
 use megaui::Vector2;
 use std::collections::HashMap;
@@ -128,7 +128,6 @@ pub struct MegaUiContext {
     mouse_position: (f32, f32),
     cursor: EventReader<CursorMoved>,
     received_character: EventReader<ReceivedCharacter>,
-    resize: EventReader<WindowResized>,
 }
 
 impl MegaUiContext {
@@ -141,7 +140,6 @@ impl MegaUiContext {
             mouse_position: (0.0, 0.0),
             cursor: Default::default(),
             received_character: Default::default(),
-            resize: Default::default(),
         }
     }
 
