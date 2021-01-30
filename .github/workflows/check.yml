@@ -52,3 +52,57 @@ jobs:
         with:
           command: clippy
           args: --example ui --features=bevy/x11,bevy/png,bevy/bevy_wgpu -- -D warnings
+
+  doc:
+    name: Check documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cache-doc-cargo-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cache-doc-cargo-${{ hashFiles('**/Cargo.toml') }}
+            cache-doc-cargo
+      - uses: actions-rs/cargo@v1
+        with:
+          command: doc
+          args: --all
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: cache-test-cargo-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            cache-test-cargo-${{ hashFiles('**/Cargo.toml') }}
+            cache-test-cargo
+      - name: Install alsa
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev
+      - name: Install udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libudev-dev
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all
