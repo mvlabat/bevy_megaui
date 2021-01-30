@@ -6,7 +6,7 @@ use bevy::{
     window::{CursorMoved, ReceivedCharacter, Windows},
 };
 
-// Is a thread local system, because `megaui::Ui` (`MegaUiContext`) doesn't implement Send + Sync.
+// Is a thread local system because `megaui::Ui` (`MegaUiContext`) doesn't implement Send + Sync.
 pub fn process_input(_world: &mut World, resources: &mut Resources) {
     use megaui::InputHandler;
 
