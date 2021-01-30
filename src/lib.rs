@@ -14,7 +14,7 @@
 //!
 //! Here's a minimal usage example:
 //!
-//! ```rust
+//! ```no_run
 //! use bevy::prelude::*;
 //! use bevy_megaui::{
 //!     megaui::{hash, Vector2},
