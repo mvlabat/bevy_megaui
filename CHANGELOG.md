@@ -1,12 +1,19 @@
 # Changelog
 
-## Version 0.1.3 (2021-01-03)
+## [0.1.4] - 30-Jan-2020
+
+### Fixed
+
+- Fix copying textures to take alignment into account.
+- Disable a documentation test.
+
+## [0.1.3] - 03-Jan-2020
 
 ### Fixed
 
 * Updating UI transform uniform on resizing a primary window
 
-## Version 0.1.2 (2021-01-03)
+## [0.1.2] - 03-Jan-2020
 
 ### Added 
 
@@ -17,7 +24,7 @@
 * MSAA support (issue [#4](https://github.com/mvlabat/bevy_megaui/issues/4))
 * sRGB conversion in WebGL2
 
-## Version 0.1.1 (2020-12-31)
+## [0.1.1] - 31-Dec-2020
 
 ### Added 
 
