@@ -1,6 +1,7 @@
 # `bevy_megaui`
 
 [![Crates.io](https://img.shields.io/crates/v/bevy_megaui.svg)](https://crates.io/crates/bevy_megaui)
+[![Documentation](https://docs.rs/bevy_megaui/badge.svg)](https://docs.rs/bevy_megaui)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/bevyengine/bevy/blob/master/LICENSE)
 [![Crates.io](https://img.shields.io/crates/d/bevy_megaui.svg)](https://crates.io/crates/bevy_megaui)
 [![Rust](https://github.com/mvlabat/bevy_megaui/workflows/CI/badge.svg)](https://github.com/mvlabat/bevy_megaui/actions)
