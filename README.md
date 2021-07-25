@@ -6,6 +6,8 @@
 [![Crates.io](https://img.shields.io/crates/d/bevy_megaui.svg)](https://crates.io/crates/bevy_megaui)
 [![Rust](https://github.com/mvlabat/bevy_megaui/workflows/CI/badge.svg)](https://github.com/mvlabat/bevy_megaui/actions)
 
+**This plugin is deprecated, as is `megaui` itself. If you want an immediate mode GUI plugin for your Bevy project, see [`bevy_egui`](https://github.com/mvlabat/bevy_egui).**
+
 This crate provides a [megaui](https://crates.io/crates/megaui) integration for the [Bevy](https://github.com/bevyengine/bevy) game engine.
 
 `bevy_megaui` depends solely on `megaui` and `bevy` with only `render` feature required.
